@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Attack Prediction</title>
+    <!-- Use url_for for CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <!-- Loader Overlay -->
+    <div id="loaderOverlay" class="loader-overlay">
+        <div class="loader-container">
+            <div class="cyber-loader">
+                <div class="cyber-ring"></div>
+                <div class="cyber-ring"></div>
+                <div class="cyber-dot"></div>
+                <div class="cyber-text">LOADING</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Video with Flask url_for -->
+    <video class="bg-video" autoplay muted loop playsinline id="bgVideo">
+        <source src="{{ url_for('static', filename='assets/i-am-free-anonymous.960x540.mp4') }}" type="video/mp4" />
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="scanline"></div>
+
+        <!-- Icon Bar -->
+        <div class="icon-bar">
+            <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="28" stroke="#00ff41" stroke-width="3" opacity="0.7" />
+                <path d="M20 44 L32 20 L44 44 Z" fill="#00ff41" opacity="0.18" />
+                <circle cx="32" cy="32" r="8" stroke="#00ff41" stroke-width="2" fill="none" />
+                <circle cx="32" cy="32" r="3" fill="#00ff41" />
+            </svg>
+        </div>
+
+        <!-- Terminal Corners -->
+        <div class="terminal-corner tl"></div>
+        <div class="terminal-corner tr"></div>
+        <div class="terminal-corner bl"></div>
+        <div class="terminal-corner br"></div>
+
+        <h2>Web Attack Prediction</h2>
+
+        <form method="POST" action="/predict" autocomplete="off" id="predictForm">
+            <label for="flow_duration">Flow Duration:</label>
+            <input type="number" step="any" name="flow_duration" id="flow_duration" required placeholder="Enter flow duration" />
+
+            <label for="total_fwd_packets">Total Fwd Packets:</label>
+            <input type="number" step="any" name="total_fwd_packets" id="total_fwd_packets" required placeholder="Enter total forward packets" />
+
+            <label for="total_backward_packets">Total Backward Packets:</label>
+            <input type="number" step="any" name="total_backward_packets" id="total_backward_packets" required placeholder="Enter total backward packets" />
+
+            <label for="total_length_fwd_packets">Total Length of Fwd Packets:</label>
+            <input type="number" step="any" name="total_length_fwd_packets" id="total_length_fwd_packets" required placeholder="Enter total length of forward packets" />
+
+            <input type="submit" value="Predict" />
+        </form>
+    </div>
+
+    <!-- Prediction Modal -->
+    <div id="predictionModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()" aria-label="Close Prediction Popup">&times;</button>
+            <div class="prediction-title">Prediction Result</div>
+            <div class="prediction-fields" id="predictionFields" style="display: none;">
+                <div><span class="field-label">Flow Duration:</span><span class="field-value" id="fieldFlowDuration"></span></div>
+                <div><span class="field-label">Total Fwd Packets:</span><span class="field-value" id="fieldTotalFwdPackets"></span></div>
+                <div><span class="field-label">Total Backward Packets:</span><span class="field-value" id="fieldTotalBackwardPackets"></span></div>
+                <div><span class="field-label">Total Length of Fwd Packets:</span><span class="field-value" id="fieldTotalLengthFwdPackets"></span></div>
+            </div>
+            <div class="prediction-value" id="predictionValue"></div>
+        </div>
+    </div>
+
+    <!-- Use url_for for JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <!-- Server-side prediction injection -->
+    {% if prediction %}
+    <script>
+        (function() {
+            setTimeout(function() {
+                let stored = sessionStorage.getItem("lastFormData");
+                if (stored) {
+                    lastFormData = JSON.parse(stored);
+                    sessionStorage.removeItem("lastFormData");
+                }
+                showPredictionFields();
+                document.getElementById("predictionValue").textContent = "{{ prediction|e }}";
+                var modal = document.getElementById("predictionModal");
+                var modalContent = document.querySelector(".modal-content");
+                if (modal && modalContent) {
+                    modal.style.display = "flex";
+                    modalContent.classList.remove("flip-out");
+                    void modalContent.offsetWidth;
+                    modalContent.classList.add("flip-in");
+                }
+            }, 3000);
+        })();
+    </script>
+    {% endif %}
+</body>
+</html>
